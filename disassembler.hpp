@@ -115,9 +115,9 @@ instruction_info_t disassemble(chip8_instruction_t i)
     case 0x0: // i: 0x0---
         if (HALF_LOWER_BYTE(i.msb) == 0x0) // i: 0x00--
         {
-            if (HALF_LOWER_BYTE(i.lsb) == 0x00)
+            if (HALF_LOWER_BYTE(i.lsb) == 0x0)
                 return instruction_table["00E0"];
-            else if (HALF_LOWER_BYTE(i.lsb) == 0xEE)
+            else if (HALF_LOWER_BYTE(i.lsb) == 0xE)
                 return instruction_table["00EE"];
             else
             {
@@ -292,7 +292,7 @@ instruction_info_t disassemble(chip8_instruction_t i)
             info.params[0] = HALF_LOWER_BYTE(i.msb);
             return info;
         }
-        else if (i.lsb == 0x9E)
+        else if (i.lsb == 0xA1) // i: 0xE-A1
         {
             info = instruction_table["ExA1"];
             info.params[0] = HALF_LOWER_BYTE(i.msb);
