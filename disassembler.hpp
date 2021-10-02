@@ -1,55 +1,11 @@
+#ifndef CHIPPERINO_DISASSEMBLER_H
+#define CHIPPERINO_DISASSEMBLER_H
 #include <stdio.h>
 #include <stdint.h>
 #include <map>
 #include <string>
 
-/** Memory layout **/
 
-// Max. memory size in B that the CHIP8 can address with 16b (0xFFFF, 4KB)
-const uint16_t memory_size = 4096;
-
-// The first 512 B are reserved memory
-const uint16_t program_offset = 512;
-
-// Counter of how many B we read from our ROM
-uint16_t program_size = 0;
-
-typedef struct {
-    union {
-        struct {
-            uint8_t msb; // most significant byte
-            uint8_t lsb; // least significant byte
-        };        
-        uint8_t bytes[2];        
-        uint16_t instruction;
-    };
-} chip8_instruction_t;
-
-static_assert(sizeof(chip8_instruction_t) == 2);
-
-typedef struct {
-    union {
-        uint8_t as_bytes[memory_size];
-        chip8_instruction_t as_words[memory_size/2];
-    };
-} chip8_memory_t;
-
-static_assert(sizeof(chip8_memory_t) == 4096);
-
-typedef struct {
-    union {
-        uint8_t raw_memory[memory_size];
-        chip8_memory_t memory;
-    };
-} chip8_t;
-
-// Global var representing the CHIP8 currently being emulated
-chip8_t chip8;
-
-uint16_t memory_offset(chip8_instruction_t *i)
-{
-    return (i - &chip8.memory.as_words[0]) * sizeof(chip8_instruction_t);
-}
 
 /** Disassembler info **/
 typedef struct {
@@ -372,3 +328,4 @@ instruction_info_t disassemble(chip8_instruction_t i)
     }
     return instruction_table["error"];
 }
+#endif
