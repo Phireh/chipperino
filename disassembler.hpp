@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 
-
+#include "architecture.hpp"
 
 /** Disassembler info **/
 typedef struct {
@@ -57,10 +57,6 @@ void fill_instruction_info()
     instruction_table["Fx65"] = { "LD [I], Vx", 1, "read memory at address I to registers from V0 to Vk", {}};
     instruction_table["error"] = { "error", 0, "unknown function", {}};
 }
-
-#define HALF_UPPER_BYTE(b) (b >> 4)
-#define HALF_LOWER_BYTE(b) (0x0F & b)
-
 
 instruction_info_t disassemble(chip8_instruction_t i)
 {

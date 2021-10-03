@@ -1,25 +1,31 @@
 #ifndef CHIPPERINO_DISPATCH_H
 #define CHIPPERINO_DISPATCH_H
 
-#include "architecture.hpp"
+#include <memory.h>
 
-#define HALF_UPPER_BYTE(b) (b >> 4)
-#define HALF_LOWER_BYTE(b) (0x0F & b)
+#include "architecture.hpp"
 
 void dispatch(chip8_t *c = &chip8)
 {
-    chip8_instruction_t i = c->raw_memory[c->pc];
+    chip8_instruction_t i = *(chip8_instruction_t *)&c->raw_memory[c->pc];
+
+    // first of all, increment the program counter
+    c->pc += 2;
+    
     switch (HALF_UPPER_BYTE(i.msb))
     {
     case 0x0: // i: 0x0---
         if (HALF_LOWER_BYTE(i.msb) == 0x0) // i: 0x00--
         {
             if (HALF_LOWER_BYTE(i.lsb) == 0x0) // i: 0x00E0: CLS (clear screen)
-                // TODO: implement cls
-                break;
+            {
+                memset(c->display_buffer, 0, sizeof(c->display_buffer));
+            }
             else if (HALF_LOWER_BYTE(i.lsb) == 0xE) // i: 0x00EE: RET
-                // TODO: stack pointer underflow detection
+            {
+                // TODO: stack pointer underflow detection?
                 c->pc = c->stack[--c->sp];
+            }
             else
             {
                 // unexpected combination
@@ -154,6 +160,8 @@ void dispatch(chip8_t *c = &chip8)
 
     {
         // TODO: graphics
+        
+        
         // uint8_t x = c->regs[HALF_LOWER_BYTE(i.msb)];
         // uint8_t y = c->regs[HALF_UPPER_BYTE(i.lsb)];
         // uint8_t nibble = HALF_LOWER_BYTE(i.lsb)
@@ -190,7 +198,24 @@ void dispatch(chip8_t *c = &chip8)
         {
             // TODO: key input
             // uint8_t keycode;
-            // c->regs[HALF_LOWER_BYTE(i.msb)] = ;
+            // 
+
+            if (c->input.keys)
+            {
+                for (uint8_t j = 0; j < 16; ++j)
+                {
+                    uint8_t key = c->input.keys & (1 << j);
+                    if (key)
+                    {
+                        c->regs[HALF_LOWER_BYTE(i.msb)] = j;
+                    }
+                }
+            }
+            else
+            {
+                // early exit before incrementing the program counter
+                return;
+            }
             
         } break;
 
@@ -207,34 +232,44 @@ void dispatch(chip8_t *c = &chip8)
             break;
 
         case 0x29: // i: 0xFx29: LD F, Vx
-            // TODO: graphics
+            c->I = default_font_offset + c->regs[HALF_LOWER_BYTE(i.msb)] * default_letter_size;
             break;
 
-        case 0x33: // i: 0xF-33
-            info = instruction_table["Fx33"];
-            info.params[0] = HALF_LOWER_BYTE(i.msb);
-            return info;                        
-            break;
+        case 0x33: // i: 0xFx33: LD B, Vx
+        {
+            uint8_t reg_value = c->regs[HALF_LOWER_BYTE(i.msb)];
+            c->raw_memory[c->I] = (reg_value/100) % 10;
+            c->raw_memory[c->I+1] = (reg_value/10) % 10;
+            c->raw_memory[c->I+2] = reg_value % 10;
+        } break;
 
-        case 0x55: // i: 0xF-55
-            info = instruction_table["Fx55"];
-            info.params[0] = HALF_LOWER_BYTE(i.msb);
-            return info;                        
-            break;
+        case 0x55: // i: 0xFx55
+        {
+            uint8_t last_idx = HALF_LOWER_BYTE(i.msb);
+            for (uint8_t i = 0; i <= last_idx && i < 16; ++i)
+            {
+                uint8_t value = c->regs[i];
+                c->raw_memory[c->I + i] = value;
+            }
+        } break;
 
-        case 0x65: // i: 0xF-65
-            info = instruction_table["Fx65"];
-            info.params[0] = HALF_LOWER_BYTE(i.msb);
-            return info;                                    
-            break;
+        case 0x65: // i: 0xFx65
+        {
+            uint8_t last_idx = HALF_LOWER_BYTE(i.msb);
+            for (uint8_t i = 0; i <= last_idx && i < 16; ++i)
+            {
+                uint8_t value = c->raw_memory[c->I + i];
+                c->regs[i] = value;
+            }
+        } break;
 
         default:
-            return instruction_table["error"];
+            // TODO: error handling?
             break;        
         }
         break;
     default:
-        return instruction_table["error"];
+        // TODO: error handling?
         break;        
     }
 }
