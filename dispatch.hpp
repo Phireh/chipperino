@@ -19,7 +19,7 @@ void dispatch(chip8_t *c = &chip8)
         {
             if (HALF_LOWER_BYTE(i.lsb) == 0x0) // i: 0x00E0: CLS (clear screen)
             {
-                memset(c->display_buffer, 0, sizeof(c->display_buffer));
+                memset(c->display, 0, sizeof(c->display));
             }
             else if (HALF_LOWER_BYTE(i.lsb) == 0xE) // i: 0x00EE: RET
             {
@@ -76,7 +76,6 @@ void dispatch(chip8_t *c = &chip8)
 
     case 0x7: // i: 0x7xkk: ADD Vx, byte
         c->regs[HALF_LOWER_BYTE(i.msb)] += i.lsb;
-
         break;
 
     case 0x8: // i: 0x8---

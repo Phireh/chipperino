@@ -1,6 +1,8 @@
 # Executable files
 chipperino
 chipperino.exe
+tests
+tests.exe
 
 # Microsoft compiler files and folders
 Debug

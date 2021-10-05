@@ -1,4 +1,5 @@
 #include "disassembler.hpp"
+#include "utils.hpp"
 
 char *filename;
 
@@ -14,6 +15,9 @@ int main(int argc, char *argv[])
     {
         filename = argv[1];
     }
+
+    // Find out if terminal supports color
+    check_for_colored_output();
 
     fill_instruction_info();
     

@@ -28,7 +28,7 @@ const uint8_t chip8_display_height = 32;
 
 /** PCG32 random number generator **/
 
-typedef struct { uint64_t state;  uint64_t inc; } pcg32_random_t;
+struct pcg32_random_t { uint64_t state;  uint64_t inc; };
 
 uint32_t pcg32_random_r(pcg32_random_t* rng)
 {
@@ -67,7 +67,7 @@ const uint16_t default_letter_size = 5;
 
 /** Actual chip architecture **/
 
-typedef struct {
+struct chip8_instruction_t {
     union {
         struct {
             uint8_t msb; // most significant byte
@@ -76,20 +76,20 @@ typedef struct {
         uint8_t bytes[2];        
         uint16_t instruction;
     };
-} chip8_instruction_t;
+};
 
 static_assert(sizeof(chip8_instruction_t) == 2);
 
-typedef struct {
+struct chip8_memory_t {
     union {
         uint8_t as_bytes[memory_size];
         chip8_instruction_t as_words[memory_size/2];
     };
-} chip8_memory_t;
+};
 
 static_assert(sizeof(chip8_memory_t) == 4096);
 
-typedef struct {
+struct chip8_input_t {
     union {
         uint16_t keys; // keys are defined as a bitfield
         struct {
@@ -111,11 +111,11 @@ typedef struct {
             bool key_0 : 1;
         };
     };
-} chip8_input_t;
+};
 
 static_assert(sizeof(chip8_input_t) == 2);
 
-typedef struct {
+struct chip8_t {
     /* Secondary memory region */
     union {
         uint8_t raw_memory[memory_size];
@@ -152,22 +152,22 @@ typedef struct {
         int8_t regs[16] = {};
     };
 
-    uint16_t I = 0;  // wider I register, usually only rightmost 12b used
-    uint16_t pc = 0; // program counter
-    uint8_t sp = 0;  // stack pointer
-    uint8_t dt = 0;  // delay timer
-    uint8_t st = 0;  // sound timer
+    uint16_t I = 0;      // wider I register, usually only rightmost 12b used
+    uint16_t pc = 0x200; // program counter
+    uint8_t sp = 0;      // stack pointer
+    uint8_t dt = 0;      // delay timer
+    uint8_t st = 0;      // sound timer
 
     /* Display */
     uint8_t display[chip8_display_height][chip8_display_width] = {};
 
     /* Input */
-    chip8_input_t input;
+    chip8_input_t input = {};
 
     /* Miscelaneous */
     pcg32_random_t rng = { 0x853c49e6748fea9bULL, 0xda3e39cb94b95bdbULL };
     
-} chip8_t;
+};
 
 static_assert(offsetof(chip8_t, stack) == sizeof(chip8_memory_t));
 
@@ -175,9 +175,9 @@ static_assert(offsetof(chip8_t, stack) == sizeof(chip8_memory_t));
 // Global var representing the CHIP8 currently being emulated
 chip8_t chip8;
 
-uint16_t memory_offset(chip8_instruction_t *i)
+uint16_t memory_offset(chip8_instruction_t *i, chip8_t *c = &chip8)
 {
-    return (i - &chip8.memory.as_words[0]) * sizeof(chip8_instruction_t);
+    return (i - &c->memory.as_words[0]) * sizeof(chip8_instruction_t);
 }
 
 // Misc. macros
