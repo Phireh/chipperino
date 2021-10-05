@@ -2,12 +2,12 @@
 #define CHIPPERINO_UTILS_H
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
 
 bool colored_display;
 
 #ifdef __linux__
+#include <unistd.h>
 bool check_for_colored_output()
 {
     if (!isatty(fileno(stdout)))
@@ -21,6 +21,7 @@ bool check_for_colored_output()
 }
 #else
 #ifdef _WIN32
+#include <io.h>
 bool check_for_colored_output()
 {
     if (!_isatty( _fileno(stdout)))

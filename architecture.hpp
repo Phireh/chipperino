@@ -118,14 +118,15 @@ static_assert(sizeof(chip8_input_t) == 2);
 struct chip8_t {
     /* Secondary memory region */
     union {
-        uint8_t raw_memory[memory_size];
-        chip8_memory_t memory;
         // HACK: doing this just to have a comfy default initializer
-        struct {
+        struct _this_must_be_named {
             uint8_t preamble[default_font_offset] = {};
             uint8_t font[default_font_size] = DEFAULT_FONT_ARR;
             uint8_t rest[sizeof(chip8_memory_t) - default_font_size - default_font_offset] = {};
         };
+        uint8_t raw_memory[memory_size];
+        chip8_memory_t memory;
+      
     };
     uint16_t stack[16] = {};
     
