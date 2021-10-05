@@ -159,25 +159,44 @@ void dispatch(chip8_t *c = &chip8)
     case 0xD: // i: 0xDxyn: DRW Vx, Vy, nibble
 
     {
-        // TODO: graphics
+
+        uint8_t collision_flag = 0;
+        uint8_t x = c->regs[HALF_LOWER_BYTE(i.msb)];
+        uint8_t y = c->regs[HALF_UPPER_BYTE(i.lsb)];
+        uint8_t nibble = HALF_LOWER_BYTE(i.lsb);
         
-        
-        // uint8_t x = c->regs[HALF_LOWER_BYTE(i.msb)];
-        // uint8_t y = c->regs[HALF_UPPER_BYTE(i.lsb)];
-        // uint8_t nibble = HALF_LOWER_BYTE(i.lsb)
+
+        for (int j = 0; j < nibble; ++j, ++y)
+        {
+            y %= chip8_display_height;
+            uint8_t sprite = c->raw_memory[c->I+j];
+            for (int k = 0; k < 8; ++k, ++x)
+            {
+                // Wrap horizontally if need be
+                x %= chip8_display_width;
+                uint8_t prev = c->display[y][x];
+                uint8_t next = prev ^ (sprite >> (7-k) & 1);
+                c->display[y][x] = next;
+                if (prev && !next) // we flipped from 1 to 0
+                    collision_flag = 1;
+            }
+        }
+        c->VF = collision_flag;
     } break;
         
     case 0xE: // i: 0xE---
         if (i.lsb == 0x9E) // i: 0xEx9E: SKP Vx
         {
-            // TODO: key input
-            //int8_t keycode = HALF_LOWER_BYTE(i.msb);
+            int8_t keycode = HALF_LOWER_BYTE(i.msb);
+            if ((c->input.keys << keycode) & 1)
+                c->pc += 2;
             break;
         }
         else if (i.lsb == 0xA1) // i: 0xExA1: SKNP Vx
         {
-            // TODO: key input
-            //int8_t keycode = HALF_LOWER_BYTE(i.msb);
+            int8_t keycode = HALF_LOWER_BYTE(i.msb);
+            if (!((c->input.keys << keycode) & 1))
+                c->pc += 2;
             break;
         }
         else
@@ -196,10 +215,6 @@ void dispatch(chip8_t *c = &chip8)
 
         case 0x0A: // i: 0xFx0A: LD Vx, K
         {
-            // TODO: key input
-            // uint8_t keycode;
-            // 
-
             if (c->input.keys)
             {
                 for (uint8_t j = 0; j < 16; ++j)
@@ -213,7 +228,7 @@ void dispatch(chip8_t *c = &chip8)
             }
             else
             {
-                // early exit before incrementing the program counter
+                c->pc -= 2; // return to same instruction as a form of waiting
                 return;
             }
             

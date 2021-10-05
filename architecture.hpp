@@ -159,7 +159,7 @@ typedef struct {
     uint8_t st = 0;  // sound timer
 
     /* Display */
-    uint8_t display_buffer[chip8_display_height][chip8_display_width] = {};
+    uint8_t display[chip8_display_height][chip8_display_width] = {};
 
     /* Input */
     chip8_input_t input;
