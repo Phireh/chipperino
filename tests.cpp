@@ -227,8 +227,56 @@ TEST(logic)
 }
 RECORD_TEST(logic);
 
+TEST(graphics)
+{
+    chip8_t c;
 
-/* NOTE: This definition has to be placed after all the test definitions and main */
+    // 0x200: LD v0, 0xF
+    c.memory.as_words[program_offset/sizeof(chip8_instruction_t)] = { 0x60, 0x0F };
+
+    dispatch(&c);
+    
+    // 0x202: LD F, v0
+    c.memory.as_words[0x202/sizeof(chip8_instruction_t)] = { 0xF0, 0x29 };
+    dispatch(&c);
+
+    uint16_t expected_addr = (default_font_offset + default_letter_size * 0xF);
+    if (c.I != expected_addr)
+    {
+        log_fail("LD F: Address of sprite F should be 0x%X but is 0x%X", expected_addr, c.I);
+        return false;
+    }
+
+    // 0x204: DRW v1,v2, 5
+    c.memory.as_words[0x204/sizeof(chip8_instruction_t)] = { 0xD1, 0x25 };
+    dispatch(&c);
+    
+    if (c.VF)
+    {
+        log_fail("DRW: VF should not be set when drawing on an empty screen but is 0x%X", c.VF);
+        return false;
+    }
+
+    char buf1[] = {'\1','\1','\1','\1'};
+    char buf2[] = {'\1','\0','\0','\0'};
+    
+    if (memcmp(&c.display[0][0], buf1, 4) ||
+        memcmp(&c.display[1][0], buf2, 4) ||
+        memcmp(&c.display[2][0], buf1, 4) ||
+        memcmp(&c.display[3][0], buf2, 4) ||
+        memcmp(&c.display[0][0], buf2, 4))
+    {
+        log_fail("DRW: display did not draw 'F' correctly");
+        return false;
+    }
+    
+    
+    log_ok("graphics");
+    return true;
+};
+RECORD_TEST(graphics);
+
+/* NOTE: This definition has to be placed after all the test definitions and before main */
 test_f *tests[__COUNTER__];
 int main()
 {
