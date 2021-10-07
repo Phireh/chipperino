@@ -160,13 +160,16 @@ void dispatch(chip8_t *c = &chip8)
     {
 
         uint8_t collision_flag = 0;
-        uint8_t x = c->regs[HALF_LOWER_BYTE(i.msb)];
+        uint8_t target_x = c->regs[HALF_LOWER_BYTE(i.msb)];
+        uint8_t x = target_x;
         uint8_t y = c->regs[HALF_UPPER_BYTE(i.lsb)];
         uint8_t nibble = HALF_LOWER_BYTE(i.lsb);
         
 
         for (int j = 0; j < nibble; ++j, ++y)
         {
+            x = target_x;
+            // wrap vertically if need be
             y %= chip8_display_height;
             uint8_t sprite = c->raw_memory[c->I+j];
             for (int k = 0; k < 8; ++k, ++x)

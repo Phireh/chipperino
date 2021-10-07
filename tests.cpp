@@ -257,14 +257,18 @@ TEST(graphics)
         return false;
     }
 
-    char buf1[] = {'\1','\1','\1','\1'};
-    char buf2[] = {'\1','\0','\0','\0'};
+    /* The letter F drawn as a block of bytes */
+    char line1[] = {1,1,1,1};
+    char line2[] = {1,0,0,0};
+    char line3[] = {1,1,1,1};
+    char line4[] = {1,0,0,0};
+    char line5[] = {1,0,0,0};
     
-    if (memcmp(&c.display[0][0], buf1, 4) ||
-        memcmp(&c.display[1][0], buf2, 4) ||
-        memcmp(&c.display[2][0], buf1, 4) ||
-        memcmp(&c.display[3][0], buf2, 4) ||
-        memcmp(&c.display[0][0], buf2, 4))
+    if (memcmp(&c.display[0][0], line1, 4) ||
+        memcmp(&c.display[1][0], line2, 4) ||
+        memcmp(&c.display[2][0], line3, 4) ||
+        memcmp(&c.display[3][0], line4, 4) ||
+        memcmp(&c.display[4][0], line5, 4))
     {
         log_fail("DRW: display did not draw 'F' correctly");
         return false;
