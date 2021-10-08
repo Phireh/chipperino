@@ -1,6 +1,6 @@
 project(chipperino)
 cmake_minimum_required(VERSION 3.0)
-add_executable(chipperino disassembler.cpp)
+add_executable(chipperino main.cpp)
 add_executable(tests tests.cpp)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)

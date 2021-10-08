@@ -181,6 +181,9 @@ static_assert(offsetof(chip8_t, stack) == sizeof(chip8_memory_t));
 // Global var representing the CHIP8 currently being emulated
 chip8_t chip8;
 
+// Global var signaling that the CHIP8 display buffer changed and needs to be redrawn
+bool display_update = true;
+
 uint16_t memory_offset(chip8_instruction_t *i, chip8_t *c = &chip8)
 {
     return (i - &c->memory.as_words[0]) * sizeof(chip8_instruction_t);

@@ -14,3 +14,9 @@ roms
 
 # Build directory
 build
+
+# tag files/dirs
+GPATH
+GRTAGS
+GTAGS
+gtags

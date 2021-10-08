@@ -158,7 +158,9 @@ void dispatch(chip8_t *c = &chip8)
     case 0xD: // i: 0xDxyn: DRW Vx, Vy, nibble
 
     {
-
+        // executing an instruction that changes the display
+        display_update = true;
+        
         uint8_t collision_flag = 0;
         uint8_t target_x = c->regs[HALF_LOWER_BYTE(i.msb)];
         uint8_t x = target_x;

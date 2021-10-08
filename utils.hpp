@@ -8,9 +8,18 @@ bool colored_display;
 
 #ifdef __linux__
 #include <unistd.h>
-bool check_for_colored_output()
+#include <termios.h>
+#include <errno.h>
+bool check_for_terminal()
 {
     if (!isatty(fileno(stdout)))
+        return false;
+    else
+        return true;
+}
+bool check_for_colored_output()
+{
+    if (!check_for_terminal())
         return false;
     
     char *term = getenv("TERM");
@@ -19,12 +28,76 @@ bool check_for_colored_output()
     
     return false;
 }
+void set_console_raw_mode(bool state, int fd = STDIN_FILENO)
+{
+    static struct termios original_ts;    
+    static bool first_time = true;
+    
+    struct termios ts;
+    
+    if (state == true && first_time)
+    {
+        // record original state of console so we can gracefully restore afterwards
+        tcgetattr(fd, &original_ts);
+        first_time = false;
+    }
+    
+    if (state == true)
+    {
+        ts = original_ts;
+
+        ts.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+        ts.c_oflag &= ~OPOST;
+        ts.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+        ts.c_cflag &= ~(CSIZE | PARENB);
+        ts.c_cflag |= CS8;
+        
+        ts.c_cc[VMIN] = 0;
+        ts.c_cc[VTIME] = 1;
+
+        if (tcsetattr(fd, TCSAFLUSH, &ts))
+        {
+            fprintf(stderr, "Error trying to set console raw mode: %s\n", strerror(errno));
+        }
+    }
+    else
+    {
+        if (tcsetattr(fd, TCSAFLUSH, &original_ts))
+        {
+            fprintf(stderr, "Error trying to set console raw mode: %s\n", strerror(errno));
+        }
+    }
+    
+    
+}
+bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
+{
+    int ret = read(fd, c, n);
+    if (ret == n)
+        return true; // read n characters as expected
+    else
+    {
+        if (ret == -1 && errno != EAGAIN)
+        {
+            // TODO: Error handling
+            ;
+        }
+        return false;
+    }
+}
 #else
 #ifdef _WIN32
 #include <io.h>
+bool check_for_terminal()
+{
+    if (!_isatty(_fileno(stdout)))
+        return false;
+    else
+        return true;
+}
 bool check_for_colored_output()
 {
-    if (!_isatty( _fileno(stdout)))
+    if (!check_for_terminal())
         return false;
     
     if (getenv("ANSICON"))
@@ -32,6 +105,35 @@ bool check_for_colored_output()
     else
         return false;
 }
+
+void set_console_raw_mode(bool state, int fd = STD_INPUT_HANDLE)
+{
+    HANDLE console_handle = GetStdHandle(fd);
+    DWORD original_flags;
+    static bool first_time = true;
+
+    if (first_time)
+    {
+        GetConsoleMode(console_handle, &original_flags);
+        first_time = false;
+    }
+
+    int ret;
+    if (true)
+    {
+        DWORD flags = original_flags & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT)
+        ret = SetConsoleMode(console_handle, flags);
+    }
+    else
+    {
+        ret = SetConsoleMode(original_flags);
+    }
+    if (ret)
+    {
+        fprintf(stderr, "Error trying to set console raw mode\n");
+    }
+}
+
 #endif
 #endif
 

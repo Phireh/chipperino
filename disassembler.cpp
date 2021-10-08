@@ -1,24 +1,8 @@
 #include "disassembler.hpp"
 #include "utils.hpp"
 
-char *filename;
-
-int main(int argc, char *argv[])
+void disassemble(char *filename)
 {
-    // Arg parsing
-    if (argc == 1)
-    {
-        fprintf(stderr, "Usage: chipperino <file>\n");
-        return 1;
-    }
-    else
-    {
-        filename = argv[1];
-    }
-
-    // Find out if terminal supports color
-    check_for_colored_output();
-
     fill_instruction_info();
     
     FILE *file_handle = fopen(filename, "rb");
@@ -28,7 +12,6 @@ int main(int argc, char *argv[])
     // Read instructions one-by-one
     while (p < ((chip8_instruction_t *) &chip8.memory + 4096) && fread(&i, sizeof(chip8_instruction_t), 1, file_handle))
     {
-        //printf("Loaded instruction 0x%02X%02X in offset %d\n", i.msb, i.lsb, memory_offset(p));
         *p = i;            // Save written instruction to memory 
         ++p;               // advance pointer
         program_size += 2; // and count bytes read
