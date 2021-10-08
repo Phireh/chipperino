@@ -1,4 +1,4 @@
-#include "disassembler.cpp"
+#include "disassembler.hpp"
 #include "runtime.cpp"
 
 void print_help()
