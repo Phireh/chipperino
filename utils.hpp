@@ -10,6 +10,7 @@ bool colored_display;
 #include <unistd.h>
 #include <termios.h>
 #include <errno.h>
+
 bool check_for_terminal()
 {
     if (!isatty(fileno(stdout)))
@@ -53,7 +54,7 @@ void set_console_raw_mode(bool state, int fd = STDIN_FILENO)
         ts.c_cflag |= CS8;
         
         ts.c_cc[VMIN] = 0;
-        ts.c_cc[VTIME] = 1;
+        ts.c_cc[VTIME] = 0;
 
         if (tcsetattr(fd, TCSAFLUSH, &ts))
         {
@@ -70,6 +71,8 @@ void set_console_raw_mode(bool state, int fd = STDIN_FILENO)
     
     
 }
+/* NOTE: We're riding on the fact that the terminal becomes non-blocking when VTIME = 0 and VMIN = 0,
+   otherwise we would have to use fcntl() to avoid blocking here */
 bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
 {
     int ret = read(fd, c, n);
@@ -85,6 +88,7 @@ bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
         return false;
     }
 }
+
 #else
 #ifdef _WIN32
 #include <io.h>
@@ -96,6 +100,7 @@ bool check_for_terminal()
     else
         return true;
 }
+
 bool check_for_colored_output()
 {
     if (!check_for_terminal())

@@ -295,11 +295,27 @@ TEST(input)
         return false;
     }
 
-    c.input.key_0 = true; // simulate keypress
+    c.input.key_9 = true; // simulate keypress
     dispatch(&c);
     if (c.pc != 0x202)
     {
         log_fail("Fx0A should resume execution when key is pressed");
+        return false;
+    }
+
+    if (c.V0 != 0x9)
+    {
+        log_fail("LD Vx, K should return key 0x9 but returned 0x%X", c.V0);
+        return false;
+    }
+
+    // 0x204: SKP Vx
+    c.memory.as_words[0x202/sizeof(chip8_instruction_t)] = { 0xE0, 0x9E };
+
+    dispatch(&c);
+    if (c.pc != 0x206)
+    {
+        log_fail("SKP V0 (0x9) should skip next instruction since 0x9 is pressed");
         return false;
     }
 

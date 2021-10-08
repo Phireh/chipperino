@@ -1,4 +1,5 @@
-/* Typical CHIP8 emulator bindings. You may edit these and recompile to change them */
+/* Typical CHIP8 emulator bindings. You may edit these and recompile to change them. 
+   These are 1 Byte ASCII characters at the moment */
 
 #define CHIP8_KEY_0 'X'
 #define CHIP8_KEY_1 '1'
@@ -16,3 +17,7 @@
 #define CHIP8_KEY_D 'R'
 #define CHIP8_KEY_E 'F'
 #define CHIP8_KEY_F 'V'
+
+/* The "end simulation" key. Since we read 1-byte-at-a-time at the moment,
+   ESC (27) is not a great choice, since many keys get translated into ESC+more bytes */
+#define CHIP8_KEY_END 'K'

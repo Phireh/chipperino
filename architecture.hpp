@@ -93,22 +93,22 @@ struct chip8_input_t {
     union {
         uint16_t keys; // keys are defined as a bitfield
         struct {
-            bool key_f : 1;
-            bool key_e : 1;
-            bool key_d : 1;
-            bool key_c : 1;
-            bool key_b : 1;
-            bool key_a : 1;
-            bool key_9 : 1;
-            bool key_8 : 1;
-            bool key_7 : 1;
-            bool key_6 : 1;
-            bool key_5 : 1;
-            bool key_4 : 1;
-            bool key_3 : 1;
-            bool key_2 : 1;
-            bool key_1 : 1;
             bool key_0 : 1;
+            bool key_1 : 1;
+            bool key_2 : 1;
+            bool key_3 : 1;
+            bool key_4 : 1;
+            bool key_5 : 1;
+            bool key_6 : 1;
+            bool key_7 : 1;
+            bool key_8 : 1;
+            bool key_9 : 1;
+            bool key_a : 1;
+            bool key_b : 1;
+            bool key_c : 1;
+            bool key_d : 1;
+            bool key_e : 1;
+            bool key_f : 1;
         };
     };
 };
