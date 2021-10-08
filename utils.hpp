@@ -93,6 +93,8 @@ bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
 #ifdef _WIN32
 #include <io.h>
 #include <errno.h>
+#include <windows.h>
+#include <ProcessEnv.h>
 bool check_for_terminal()
 {
     if (!_isatty(_fileno(stdout)))
@@ -127,12 +129,12 @@ void set_console_raw_mode(bool state, int fd = STD_INPUT_HANDLE)
     int ret;
     if (true)
     {
-        DWORD flags = original_flags & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT)
+        DWORD flags = original_flags & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT);
         ret = SetConsoleMode(console_handle, flags);
     }
     else
     {
-        ret = SetConsoleMode(original_flags);
+        ret = SetConsoleMode(console_handle, original_flags);
     }
     if (ret)
     {
@@ -140,7 +142,7 @@ void set_console_raw_mode(bool state, int fd = STD_INPUT_HANDLE)
     }
 }
 
-bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
+bool read_raw_input(char *c, int n, int fd = STD_INPUT_HANDLE)
 {
     int ret = _read(fd, c, n);
     if (ret == n)
