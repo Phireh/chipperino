@@ -88,6 +88,7 @@ bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
 #else
 #ifdef _WIN32
 #include <io.h>
+#include <errno.h>
 bool check_for_terminal()
 {
     if (!_isatty(_fileno(stdout)))
@@ -134,6 +135,21 @@ void set_console_raw_mode(bool state, int fd = STD_INPUT_HANDLE)
     }
 }
 
+bool read_raw_input(char *c, int n, int fd = STDIN_FILENO)
+{
+    int ret = _read(fd, c, n);
+    if (ret == n)
+        return true; // read n characters as expected
+    else
+    {
+        if (ret == -1 && errno != EAGAIN)
+        {
+            // TODO: Error handling
+            ;
+        }
+        return false;
+    }
+}
 #endif
 #endif
 

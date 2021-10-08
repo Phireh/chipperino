@@ -40,7 +40,7 @@ TEST(clear_screen)
     log_ok("CLS");
     return true;
 }
-//RECORD_TEST(clear_screen);
+RECORD_TEST(clear_screen);
 
 TEST(function_call_and_return)
 {
@@ -280,6 +280,33 @@ TEST(graphics)
     return true;
 };
 RECORD_TEST(graphics);
+
+TEST(input)
+{
+    chip8_t c;
+
+    // 0x200: LD Vx, K
+    c.memory.as_words[program_offset/sizeof(chip8_instruction_t)] = { 0xF0, 0x0A };
+
+    dispatch(&c);
+    if (c.pc != 0x200)
+    {
+        log_fail("Fx0A should halt execution until key is pressed");
+        return false;
+    }
+
+    c.input.key_0 = true; // simulate keypress
+    dispatch(&c);
+    if (c.pc != 0x202)
+    {
+        log_fail("Fx0A should resume execution when key is pressed");
+        return false;
+    }
+
+    log_ok("input");
+    return true;
+}
+RECORD_TEST(input);
 
 /* NOTE: This definition has to be placed after all the test definitions and before main */
 test_f *tests[__COUNTER__];
