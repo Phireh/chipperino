@@ -7,3 +7,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
 target_compile_features(chipperino PUBLIC cxx_std_17)
 target_compile_features(tests PUBLIC cxx_std_17)
+
+if(MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
