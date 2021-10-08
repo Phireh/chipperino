@@ -110,7 +110,7 @@ bool check_for_colored_output()
 void set_console_raw_mode(bool state, int fd = STD_INPUT_HANDLE)
 {
     HANDLE console_handle = GetStdHandle(fd);
-    DWORD original_flags;
+    static DWORD original_flags;
     static bool first_time = true;
 
     if (first_time)
