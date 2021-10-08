@@ -42,8 +42,12 @@ void execute(char *filename)
     // continue the VM until we are outside the program's memory region
     while(chip8.pc < program_offset + program_size)
     {
+
+        /* TODO: Sleeping for <1ms in Windows is not trivial. We could implement it as a spinlock */        
+#ifdef __linux__
         // Sleep for 2 usecs roughly translates into 500 MHz
         usleep(2);
+#endif
 
         // update the timers for this clock cycle
         auto now = Clock::now();
