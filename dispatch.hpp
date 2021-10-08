@@ -2,7 +2,6 @@
 #define CHIPPERINO_DISPATCH_H
 
 #include <memory.h>
-
 #include "architecture.hpp"
 
 void dispatch(chip8_t *c = &chip8)
@@ -191,15 +190,15 @@ void dispatch(chip8_t *c = &chip8)
     case 0xE: // i: 0xE---
         if (i.lsb == 0x9E) // i: 0xEx9E: SKP Vx
         {
-            int8_t keycode = HALF_LOWER_BYTE(i.msb);
-            if ((c->input.keys << keycode) & 1)
+            int8_t keycode = c->regs[HALF_LOWER_BYTE(i.msb)];
+            if ((c->input.keys >> keycode) & 1)
                 c->pc += 2;
             break;
         }
         else if (i.lsb == 0xA1) // i: 0xExA1: SKNP Vx
         {
-            int8_t keycode = HALF_LOWER_BYTE(i.msb);
-            if (!((c->input.keys << keycode) & 1))
+            int8_t keycode = c->regs[HALF_LOWER_BYTE(i.msb)];
+            if (!((c->input.keys >> keycode) & 1))
                 c->pc += 2;
             break;
         }
@@ -223,7 +222,7 @@ void dispatch(chip8_t *c = &chip8)
             {
                 for (uint8_t j = 0; j < 16; ++j)
                 {
-                    uint8_t key = c->input.keys & (1 << j);
+                    uint16_t key = c->input.keys & (1 << j);
                     if (key)
                     {
                         c->regs[HALF_LOWER_BYTE(i.msb)] = j;
