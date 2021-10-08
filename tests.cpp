@@ -297,26 +297,6 @@ int main()
     }
     log_summary("%d out of %d tests succeeded", successes, ntests);
 
-    log_ok("LIKE REALLY WHAT THE FUCK");
-
-    // TEST: disable console echo
-    set_console_raw_mode(true);
-    
-    
-    while (1)
-    {
-        clear_screen();
-        char c = 0;
-        if (read_raw_input(&c, 1))
-        {
-            // there's input to process
-            if (c == 'q') goto end_loop;
-        }
-        printf("c");
-        fflush(stdout);
-        usleep(1000 * 100);
-    }
-end_loop:
 
     // return number of failed tests, or 0 if everything is alright
     return ntests - successes;
