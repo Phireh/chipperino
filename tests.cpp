@@ -20,7 +20,7 @@ struct record_test {
 
 TEST(clear_screen)
 {
-    chip8_t c;
+	chip8_t c;
     uint8_t *p = (uint8_t *) c.display;
     // fill the screen with junk
     memset(p, rand(), sizeof(c.display));

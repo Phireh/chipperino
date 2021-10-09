@@ -118,19 +118,15 @@ static_assert(sizeof(chip8_input_t) == 2);
 
 struct chip8_t {
     /* Secondary memory region */
-    union {
-#ifdef _MSC_VER
-        // HACK: doing this just to have a comfy default initializer
-        struct _this_must_be_named {
-#else
-        struct {
-#endif
-            uint8_t preamble[default_font_offset] = {};
-            uint8_t font[default_font_size] = DEFAULT_FONT_ARR;
-            uint8_t rest[sizeof(chip8_memory_t) - default_font_size - default_font_offset] = {};
-        };
-        uint8_t raw_memory[memory_size];
-        chip8_memory_t memory;
+	union {
+		struct {
+			uint8_t preamble[default_font_offset];
+			uint8_t font[default_font_size];
+			uint8_t rest[sizeof(chip8_memory_t) - default_font_size - default_font_offset];
+		} _this_must_be_named = { {}, DEFAULT_FONT_ARR, {} };
+
+		uint8_t raw_memory[memory_size];
+		chip8_memory_t memory;
       
     };
     uint16_t stack[16] = {};
@@ -179,7 +175,7 @@ static_assert(offsetof(chip8_t, stack) == sizeof(chip8_memory_t));
 
 
 // Global var representing the CHIP8 currently being emulated
-chip8_t chip8;
+chip8_t chip8{};
 
 // Global var signaling that the CHIP8 display buffer changed and needs to be redrawn
 bool display_update = true;
