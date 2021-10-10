@@ -47,8 +47,9 @@ void set_console_raw_mode(bool state, int fd = STDIN_FILENO)
     {
         ts = original_ts;
 
-        ts.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
-        ts.c_oflag &= ~OPOST;
+        ts.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP  | INLCR | IGNCR | ICRNL| IXON);
+        // NOTE: we still want OPOST so the terminal interprets '\n' on output
+        //ts.c_oflag &= ~OPOST;
         ts.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
         ts.c_cflag &= ~(CSIZE | PARENB);
         ts.c_cflag |= CS8;
