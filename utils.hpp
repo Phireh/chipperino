@@ -144,18 +144,44 @@ void set_console_raw_mode(bool state, int fd = STD_INPUT_HANDLE)
 
 bool read_raw_input(char *c, int n, int fd = STD_INPUT_HANDLE)
 {
-    int ret = _read(fd, c, n);
-    if (ret == n)
-        return true; // read n characters as expected
-    else
+    HANDLE console_handle = GetStdHandle(fd);
+    INPUT_RECORD input_buffer;
+    DWORD nread;
+
+    // check if there is available input
+    while (PeekConsoleInput(console_handle, &input_buffer, 1, &nread) && nread)
     {
-        if (ret == -1 && errno != EAGAIN)
-        {
-            // TODO: Error handling
-            ;
+        // actually read it
+        ReadConsoleInput(console_handle, &input_buffer, 1, &nread);
+
+        KEY_EVENT_RECORD *event = ((KEY_EVENT_RECORD*)&input_buffer.Event);
+
+        // check it is actually a pressed key event
+        if (input_buffer.EventType & KEY_EVENT && event->bKeyDown)
+        {          
+            // move input to our character out variable
+            *c = event->uChar.AsciiChar;
+            return true;
         }
-        return false;
+        // otherwise keep reading to clean the event queue of non-keyboard events
     }
+
+    // no more input in queue 
+    return false;
+
+    
+    // int ret = _read(fd, c, n);
+    // if (ret == n)
+    //     return true; // read n characters as expected
+    // else
+    // {
+    //     if (ret == -1 && errno != EAGAIN)
+    //     {
+    //         // TODO: Error handling
+    //         ;
+    //     }
+    //     return false;
+    // }
 }
 #endif
 #endif

@@ -9,6 +9,9 @@ Debug
 *.ilk
 *.pdb
 
+# Microsoft VS folder
+.vs
+
 # Roms
 roms
 

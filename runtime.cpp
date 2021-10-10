@@ -43,10 +43,18 @@ void execute(char *filename)
     while(chip8.pc < program_offset + program_size)
     {
 
-        /* TODO: Sleeping for <1ms in Windows is not trivial. We could implement it as a spinlock */        
 #ifdef __linux__
         // Sleep for 2 usecs roughly translates into 500 MHz
         usleep(2);
+#else
+        // Windows cannot sleep for <1ms, so we do a busywait
+        auto busywait_start = Clock::now();
+        while(1)
+        {
+            auto time_slept = std::chrono::duration_cast<std::chrono::microseconds>(Clock::now() - busywait_start);
+            if (time_slept.count() >= 2)
+              break;
+        }
 #endif
 
         // update the timers for this clock cycle
