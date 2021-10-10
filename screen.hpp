@@ -32,7 +32,7 @@ void print_border()
     screen_buffer[chip8_display_height+1][0] = '\\';
     for (int i = 1; i <= chip8_display_width; ++i)
       screen_buffer[chip8_display_height+1][i] = '-';
-    screen_buffer[chip8_display_height+1][chip8_display_width+1] = '//';
+    screen_buffer[chip8_display_height+1][chip8_display_width+1] = '/';
 }
 
 void draw_display(chip8_t *c = &chip8)
