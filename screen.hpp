@@ -56,7 +56,7 @@ void draw_display(chip8_t *c = &chip8)
     screen_buffer[chip8_display_height+1][chip8_display_width+2] = '\0';
 
     // finally, the actual printing to screen
-    printf(RESET_CURSOR "%s", screen_buffer);
+    printf(RESET_CURSOR "%s", &screen_buffer[0][0]);
 }
 
 void clear_screen()

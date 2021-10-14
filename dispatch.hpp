@@ -192,14 +192,24 @@ void dispatch(chip8_t *c = &chip8)
         {
             int8_t keycode = c->regs[HALF_LOWER_BYTE(i.msb)];
             if ((c->input.keys >> keycode) & 1)
+            {
                 c->pc += 2;
+                /* NOTE: Clearing input key to make sure the ROM does not read the same key again and again
+                   since we poll it much slower than the CPU clockrate */
+                c->input.keys &= ~(1 << keycode);
+            }
             break;
         }
         else if (i.lsb == 0xA1) // i: 0xExA1: SKNP Vx
         {
             int8_t keycode = c->regs[HALF_LOWER_BYTE(i.msb)];
             if (!((c->input.keys >> keycode) & 1))
+            {
                 c->pc += 2;
+                /* NOTE: Clearing input key to make sure the ROM does not read the same key again and again
+                   since we poll it much slower than the CPU clockrate */
+                c->input.keys &= ~(1 << keycode);
+            }
             break;
         }
         else
@@ -226,6 +236,9 @@ void dispatch(chip8_t *c = &chip8)
                     if (key)
                     {
                         c->regs[HALF_LOWER_BYTE(i.msb)] = j;
+                        /* NOTE: Clearing input key to make sure the ROM does not read the same key again and again
+                           since we poll it much slower than the CPU clockrate */
+                        c->input.keys &= ~(1 << j);
                     }
                 }
             }

@@ -39,6 +39,9 @@ void execute(char *filename)
 
     auto input_timestamp = Clock::now();
     auto dt_timestamp = Clock::now();
+    chip8_input_t last_input = {0};
+    chip8_input_t curr_input = {0};
+    
     // continue the VM until we are outside the program's memory region
     while(chip8.pc < program_offset + program_size)
     {
@@ -74,11 +77,13 @@ void execute(char *filename)
         if (input_dt > input_polling_period)
         {
 
+            /* Reset input */
+            last_input = curr_input;
+            curr_input = {};
+            
             input_timestamp = now;
             /* Input handling */
             char c = 0;
-            chip8.input.keys = 0; // reset key state
-
 
             while (read_raw_input(&c, 1)) // consume all pending keypresses
             {
@@ -89,72 +94,75 @@ void execute(char *filename)
                     break;
                     
                 case CHIP8_KEY_0:
-                    chip8.input.key_0 = true;
+                    curr_input.key_0 = true;
                     break;
+                    
                 case CHIP8_KEY_1:
-                    chip8.input.key_1 = true;
+                    curr_input.key_1 = true;
                     break;
 
                 case CHIP8_KEY_2:
-                    chip8.input.key_2 = true;
+                    curr_input.key_2 = true;
                     break;
 
                 case CHIP8_KEY_3:
-                    chip8.input.key_3 = true;
+                    curr_input.key_3 = true;
                     break;
 
                 case CHIP8_KEY_4:
-                    chip8.input.key_4 = true;
+                    curr_input.key_4 = true;
                     break;
 
                 case CHIP8_KEY_5:
-                    chip8.input.key_5 = true;
+                    curr_input.key_5 = true;
                     break;
 
                 case CHIP8_KEY_6:
-                    chip8.input.key_6 = true;
+                    curr_input.key_6 = true;
                     break;
 
                 case CHIP8_KEY_7:
-                    chip8.input.key_7 = true;
+                    curr_input.key_7 = true;
                     break;
 
                 case CHIP8_KEY_8:
-                    chip8.input.key_8 = true;
+                    curr_input.key_8 = true;
                     break;
 
                 case CHIP8_KEY_9:
-                    chip8.input.key_9 = true;
+                    curr_input.key_9 = true;
                     break;
 
                 case CHIP8_KEY_A:
-                    chip8.input.key_a = true;
+                    curr_input.key_a = true;
                     break;
 
                 case CHIP8_KEY_B:
-                    chip8.input.key_b = true;
+                    curr_input.key_b = true;
                     break;
 
                 case CHIP8_KEY_C:
-                    chip8.input.key_c = true;
+                    curr_input.key_c = true;
                     break;
 
                 case CHIP8_KEY_D:
-                    chip8.input.key_d = true;
+                    curr_input.key_d = true;
                     break;
 
                 case CHIP8_KEY_E:
-                    chip8.input.key_e = true;
+                    curr_input.key_e = true;
                     break;
 
                 case CHIP8_KEY_F:
-                    chip8.input.key_f = true;
+                    curr_input.key_f = true;
                     break;
 
                 default:
                     break;
                 }
             }
+            /* Most CHIP8 ROMs do not deal well with repeated input from held keys. For now were just ignoring held keys */
+            chip8.input.keys = curr_input.keys & ~(last_input.keys);
         }
         
 
